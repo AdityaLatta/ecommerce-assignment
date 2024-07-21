@@ -10,15 +10,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@index([name])
-}
-
 model User {
     id         Int      @id @default(autoincrement())
     name       String
@@ -28,4 +19,24 @@ model User {
     otp        String
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
+
+    categories UserCategory[]
 }
+
+model Category {
+    id Int @id @default(autoincrement())
+    category String
+
+    users UserCategory[]
+}
+
+model UserCategory {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@unique([userId, categoryId])
+}
+

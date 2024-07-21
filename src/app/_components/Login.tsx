@@ -6,17 +6,30 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 
+import { setCookie } from "lib";
+
 const Login = () => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [show, setShow] = useState('password')
     const router = useRouter();
 
     const loginUser = api.user.login.useMutation({
-        onSuccess: async () => {
+        onSuccess: async (data) => {
             setEmail("");
             setPassword("");
-            router.push("/");
+
+            if (!data.isVerified) {
+              router.push( `/signup/verify?id=${data.id}`)
+            }else{
+              await setCookie(data.token);
+              router.push("/");
+            }
+
+        },
+        onError: async (data) => {
+          console.error(data.message);
         }
     });
 
@@ -69,18 +82,24 @@ const Login = () => {
             Password
           </label>
           <input
-            type="password"
+            type={show}
             value={password}
             className="h-12 w-full rounded-md border border-[#C1C1C1] p-4"
             id="pass"
             placeholder="Enter"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <span className="absolute right-4 top-9 underline">Show</span>
+          <span className="absolute right-4 top-9 underline cursor-pointer select-none"
+                onClick={() => {(show == 'password') ? setShow('text') : setShow('password')}}
+          >Show</span>
         </div>
 
-        <button type="submit" className="relative top-[191px] mx-auto flex h-[56px] w-[456px] items-center justify-center rounded-md bg-black text-white">
-          LOGIN
+        <button 
+          type="submit" 
+          className={`${loginUser.isPending? 'bg-gray-500': ''} relative top-[191px] mx-auto flex h-[56px] w-[456px] items-center justify-center rounded-md bg-black text-white`}
+          disabled= {loginUser.isPending}
+          >
+          {loginUser.isPending? 'LOADING...': 'LOGIN'}
         </button>
       </form>
 

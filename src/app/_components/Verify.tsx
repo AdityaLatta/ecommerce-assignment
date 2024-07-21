@@ -2,66 +2,108 @@
 
 import React from "react";
 import { useState, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
-export default function Verify () {
+import { setCookie } from "lib";
 
+export default function Verify() {
   const query = useSearchParams();
   const id = Number(query.get("id"));
+  const router = useRouter();
 
-  const {data} = api.user.getOtp.useQuery({id});
+  const [error, setError] = useState<string | null>(null);
+  const {data, isLoading} = api.user.getUserEmail.useQuery({id: id});
 
-  const otpBoxReference = useRef<(HTMLInputElement | null)[]>(Array(8).fill(''));
+  const verifyUser = api.user.verifyUser.useMutation({
+    onError: async (data) => {
+      setError(data.message)
+    },
+    onSuccess: async (data) => {
+       await setCookie(data);
+       router.push("/")
+    }
+  });
 
-  const [otp, setOtp] = useState(new Array(8).fill(''));
+  const otpBoxReference = useRef<(HTMLInputElement | null)[]>(
+    Array(8).fill(""),
+  );
+
+  const [otp, setOtp] = useState(new Array(8).fill(""));
 
   function handleChange(value: string, index: number): void {
     let newArr = [...otp];
     newArr[index] = value;
     setOtp(newArr);
 
-    if (value && index < 8-1) {
+    if (value && index < 8 - 1) {
       otpBoxReference.current[index + 1]?.focus();
     }
   }
 
-  function handleBackspaceAndEnter (e: React.KeyboardEvent<HTMLInputElement>, index: number) {
+  function handleBackspaceAndEnter(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number,
+  ) {
     if (e.key === "Backspace" && !e.currentTarget.value && index > 0) {
-        otpBoxReference.current[index - 1]?.focus();
+      otpBoxReference.current[index - 1]?.focus();
+      setError(null)
     }
     if (e.key === "Enter" && e.currentTarget.value && index < 8 - 1) {
-        otpBoxReference.current[index + 1]?.focus();
+      otpBoxReference.current[index + 1]?.focus();
     }
-};
+  }
 
   return (
     <div className="relative top-[40px] m-auto h-[453px] w-[576px] rounded-[20px] border border-[#C1C1C1]">
-        <div className="font-sans font-semibold text-[32px] leading-[38.73px] relative top-[40px] text-center">Verify your email</div>
-        <p className="font-sans font-normal text-[16px] leading-[19.36px] relative top-[72px] text-center">Enter the 8 digit code you have received on</p>
-        <span className="font-sans font-medium text-[16px] leading-[19.36px] inline-block w-full relative top-[72px] text-center">{data?.email || "swa***@gmail.com"}</span>
+      <div className="relative top-[40px] text-center font-sans text-[32px] font-semibold leading-[38.73px]">
+        Verify your email
+      </div>
+      <p className="relative top-[72px] text-center font-sans text-[16px] font-normal leading-[19.36px]">
+        Enter the 8 digit code you have received on
+      </p>
+      {
+        !isLoading && <span className="relative top-[72px] inline-block w-full text-center font-sans text-[16px] font-medium leading-[19.36px]">
+        {data?.email}
+      </span>
+      }
 
-        <div className="w-[452px] h-[74px] relative top-[118px] m-auto">
-            <span>Code</span>
-            <div className="flex justify-between">
-                {otp.map((digit, index) => (
-                  <input 
-                    key={index}
-                    value={digit}
-                    maxLength={1}
-                    onChange={(e) => handleChange(e.target.value, index)}
-                    onKeyUp={(e) => handleBackspaceAndEnter(e, index)}
-                    ref={(reference) => { otpBoxReference.current[index] = reference; }}
-                    className="border border-[#C1C1C1] w-[46px] h-[48px] rounded-md text-2xl text-center"></input>
-                ))}
-            </div>
+      <div className="relative top-[118px] m-auto h-[74px] w-[452px]">
+        <span>Code</span>
+        <div className="flex justify-between">
+          {otp.map((digit, index) => (
+            <input
+              key={index}
+              value={digit}
+              maxLength={1}
+              onChange={(e) => handleChange(e.target.value, index)}
+              onKeyUp={(e) => handleBackspaceAndEnter(e, index)}
+              ref={(reference) => {
+                otpBoxReference.current[index] = reference;
+              }}
+              className="h-[48px] w-[46px] rounded-md border border-[#C1C1C1] text-center text-2xl"
+            ></input>
+          ))}
         </div>
+      </div>
 
-        {otp.length === 8 && otp.join("") === data?.otp && <div className="font-sans font-light text-sm leading-[19.36px] inline-block w-full relative top-[140px] text-center text-red-600">Wrong Otp</div>}
-
-        <div className="w-[456px] h-[56px] relative top-[168px] m-auto">
-            <button className="w-full h-full bg-black text-white rounded-md" onClick={() => console.log(otp.join(""), data?.otp)}>Verify</button>
+      {error && (
+        <div className="relative top-[140px] inline-block w-full text-center font-sans text-sm font-light leading-[19.36px] text-red-600">
+          Wrong Otp
         </div>
+      )}
+
+      <div className="relative top-[168px] m-auto h-[56px] w-[456px]">
+        <button
+          className={`h-full w-full rounded-md bg-black text-white ${verifyUser.isPending ? 'bg-gray-500': ''}`}
+          disabled={verifyUser.isPending}
+          onClick={() => {
+            verifyUser.mutate({id, clientOtp: otp.join("")});
+          }}
+        >
+          Verify
+        </button>
+      </div>
     </div>
   );
 }

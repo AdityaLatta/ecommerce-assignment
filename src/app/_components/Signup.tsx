@@ -78,9 +78,10 @@ export function Signup() {
 
         <button
           type="submit"
-          className="relative top-[176px] mx-auto flex h-[56px] w-[456px] items-center justify-center rounded-md bg-black text-white"
+          disabled={createUser.isPending}
+          className={`${createUser.isPending ? 'bg-gray-500' : ''} relative top-[176px] mx-auto flex h-[56px] w-[456px] items-center justify-center rounded-md bg-black text-white`}
         >
-          CREATE ACCOUNT
+           {createUser.isPending ? 'LOADING...' : 'CREATE ACCOUNT'}
         </button>
       </form>
 

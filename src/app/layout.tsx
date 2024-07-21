@@ -25,10 +25,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable}`}>
-      <body className="bg-[#F4F4F4]">
-        <Header/>
-        <Discount/>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+      <body className="bg-[#F4F4F4]" suppressHydrationWarning={true}>
+        
+        <TRPCReactProvider>
+          <Header/>
+          <Discount/>
+          {children}
+          </TRPCReactProvider>
       </body>
     </html>
   );
