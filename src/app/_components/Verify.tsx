@@ -1,10 +1,8 @@
 "use client";
 
-import React from "react";
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
-
 import { setCookie } from "lib";
 
 export default function Verify() {
@@ -13,23 +11,21 @@ export default function Verify() {
   const router = useRouter();
 
   const [error, setError] = useState<string | null>(null);
-  const {data, isLoading} = api.user.getUserEmail.useQuery({id: id});
+  const { data, isLoading } = api.user.getUserEmail.useQuery({ id: id });
 
   const verifyUser = api.user.verifyUser.useMutation({
-    onError: async (data) => {
-      setError(data.message)
+    onError: async (error) => {
+      setError(error.message);
     },
     onSuccess: async (data) => {
-       await setCookie(data);
-       router.push("/")
-    }
+      await setCookie(data);
+      router.push("/");
+    },
   });
 
-  const otpBoxReference = useRef<(HTMLInputElement | null)[]>(
-    Array(8).fill(null),
-  );
+  const otpBoxReference = useRef<(HTMLInputElement | null)[]>(Array(8).fill(null));
 
-  const [otp, setOtp] = useState(new Array(8).fill(""));
+  const [otp, setOtp] = useState<string[]>(new Array(8).fill(""));
 
   function handleChange(value: string, index: number): void {
     const newArr = [...otp];
@@ -41,13 +37,10 @@ export default function Verify() {
     }
   }
 
-  function handleBackspaceAndEnter(
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) {
+  function handleBackspaceAndEnter(e: React.KeyboardEvent<HTMLInputElement>, index: number) {
     if (e.key === "Backspace" && !e.currentTarget.value && index > 0) {
       otpBoxReference.current[index - 1]?.focus();
-      setError(null)
+      setError(null);
     }
     if (e.key === "Enter" && e.currentTarget.value && index < 8 - 1) {
       otpBoxReference.current[index + 1]?.focus();
@@ -62,11 +55,11 @@ export default function Verify() {
       <p className="relative top-[72px] text-center font-sans text-[16px] font-normal leading-[19.36px]">
         Enter the 8 digit code you have received on
       </p>
-      {
-        !isLoading && <span className="relative top-[72px] inline-block w-full text-center font-sans text-[16px] font-medium leading-[19.36px]">
-        {data?.email}
-      </span>
-      }
+      {!isLoading && (
+        <span className="relative top-[72px] inline-block w-full text-center font-sans text-[16px] font-medium leading-[19.36px]">
+          {data?.email}
+        </span>
+      )}
 
       <div className="relative top-[118px] m-auto h-[74px] w-[452px]">
         <span>Code</span>
@@ -82,7 +75,7 @@ export default function Verify() {
                 otpBoxReference.current[index] = reference;
               }}
               className="h-[48px] w-[46px] rounded-md border border-[#C1C1C1] text-center text-2xl"
-            ></input>
+            />
           ))}
         </div>
       </div>
@@ -95,10 +88,12 @@ export default function Verify() {
 
       <div className="relative top-[168px] m-auto h-[56px] w-[456px]">
         <button
-          className={`h-full w-full rounded-md bg-black text-white ${verifyUser.isPending ? 'bg-gray-500': ''}`}
+          className={`h-full w-full rounded-md bg-black text-white ${
+            verifyUser.isPending ? "bg-gray-500" : ""
+          }`}
           disabled={verifyUser.isPending}
           onClick={() => {
-            verifyUser.mutate({id, clientOtp: otp.join("")});
+            verifyUser.mutate({ id, clientOtp: otp.join("") });
           }}
         >
           Verify
