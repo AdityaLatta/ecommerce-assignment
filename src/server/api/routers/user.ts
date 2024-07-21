@@ -14,8 +14,8 @@ const auth = nodemailer.createTransport({
   secure: true,
   port: 465,
   auth: {
-    user: "lattaji72@gmail.com",
-    pass: "lkycnioucobnnhjf"
+    user: env.MAIL_EMAIL,
+    pass: env.MAIL_PASS,
   }
 })
 

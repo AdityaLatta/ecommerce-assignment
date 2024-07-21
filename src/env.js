@@ -12,6 +12,8 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     JWT_SECRET_KEY: z.string(),
+    MAIL_EMAIL: z.string(),
+    MAIL_PASS: z.string(),
   },
 
   /**
@@ -31,6 +33,8 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+    MAIL_EMAIL:process.env.MAIL_EMAIL,
+    MAIL_PASS:process.env.MAIL_PASS,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
