@@ -23,7 +23,7 @@ export default function Verify() {
     },
   });
 
-  const otpBoxReference = useRef<(HTMLInputElement | null)[]>(Array(8).fill(null));
+  const otpBoxReference = useRef<(HTMLInputElement | null)[]>(new Array(8).fill(null));
 
   const [otp, setOtp] = useState<string[]>(new Array(8).fill(""));
 
