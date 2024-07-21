@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 export function Header() {
   const router = useRouter();
   const [user, setuser] = useState<boolean>();
-  const {data, isLoading} = api.user.getUser.useQuery();
+  const {data} = api.user.getUser.useQuery();
 
   useEffect(() => {
     
@@ -36,7 +36,7 @@ export function Header() {
                 Orders & Returns
               </li>
                 <li className="h-[15px] font-sans text-xs font-normal leading-[14.52px]">
-                  Hi ' John
+                  Hi &apos; John
                 </li>
             </ul>
           </div>

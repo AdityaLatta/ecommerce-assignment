@@ -32,9 +32,9 @@ export const userRouter = createTRPCRouter({
       
       if (!token || token == null) return;
 
-        let res = jwt.verify(token.value, env.JWT_SECRET_KEY) as JwtPayload;
+        const res = jwt.verify(token.value, env.JWT_SECRET_KEY) as JwtPayload;
 
-        let user = await ctx.db.user.findFirst({
+        const user = await ctx.db.user.findFirst({
           where: {
             id: Number(res.id)
           },
@@ -53,7 +53,7 @@ export const userRouter = createTRPCRouter({
     getUserEmail: publicProcedure
     .input(z.object({id: z.number()}))
     .query(async ({ctx, input}) => {
-        let res = ctx.db.user.findFirst({
+        const res = ctx.db.user.findFirst({
           where: {
             id: input.id,
           },
@@ -70,7 +70,7 @@ export const userRouter = createTRPCRouter({
     .input(z.object({ page: z.number()}))
     .mutation(async ({ctx, input}) => {
 
-      let res = await ctx.db.category.findMany({ take: 6 , skip: (input.page - 1) * 6});
+      const res = await ctx.db.category.findMany({ take: 6 , skip: (input.page - 1) * 6});
 
       return res;
     }),
@@ -114,9 +114,9 @@ export const userRouter = createTRPCRouter({
       }
     })
 
-    let arr = [];    
+    const arr = [];    
 
-    for (let i of res) {
+    for (const i of res) {
       arr.push(i.categoryId);
     }
 
@@ -135,7 +135,7 @@ export const userRouter = createTRPCRouter({
         text: `Your Otp Verification Code is - ${otp}`
       }
     
-      auth.sendMail(receiver, (err, emailResponse) => {
+      auth.sendMail(receiver, (err) => {
         if (err) {
           console.log(err);
         }
@@ -182,7 +182,7 @@ export const userRouter = createTRPCRouter({
 
     if (!decodePass) throw new TRPCError({code: "NOT_FOUND", message: "Invalid Credentials"});
         
-    let token = jwt.sign({ id: user?.id }, env.JWT_SECRET_KEY);
+    const token = jwt.sign({ id: user?.id }, env.JWT_SECRET_KEY);
 
     return {
       id: user.id,
@@ -215,7 +215,7 @@ export const userRouter = createTRPCRouter({
         }
       })
 
-      let token = jwt.sign({id: input.id}, env.JWT_SECRET_KEY);
+      const token = jwt.sign({id: input.id}, env.JWT_SECRET_KEY);
 
       return token;
       

@@ -1,4 +1,4 @@
-import { api, HydrateClient } from "~/trpc/server";
+import { HydrateClient } from "~/trpc/server";
 import {  redirect } from "next/navigation";
 import { Categories } from "./_components/categories";
 import { cookies } from "next/headers";

@@ -26,13 +26,13 @@ export default function Verify() {
   });
 
   const otpBoxReference = useRef<(HTMLInputElement | null)[]>(
-    Array(8).fill(""),
+    Array(8).fill(null),
   );
 
   const [otp, setOtp] = useState(new Array(8).fill(""));
 
   function handleChange(value: string, index: number): void {
-    let newArr = [...otp];
+    const newArr = [...otp];
     newArr[index] = value;
     setOtp(newArr);
 

@@ -106,7 +106,7 @@ const Login = () => {
       <div className="relative top-[220px] mx-auto h-[1px] w-[456px] bg-[#C1C1C1]"></div>
 
       <div className="relative top-[251px] mx-auto flex h-[19px] w-[456px] items-center justify-center gap-2">
-        <span>Don't have an Account? </span>
+        <span>Don &apos;t have an Account? </span>
         <button className="font-semibold" onClick={() => router.push("/signup")}>SIGN UP</button>
       </div>
     </div>
